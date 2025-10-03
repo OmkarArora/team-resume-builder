@@ -10,6 +10,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 
 interface ResumeFormProps {
 	resume?: Resume;
@@ -406,23 +413,24 @@ export default function ResumeForm({
 												className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring text-sm"
 												placeholder="Category (e.g., Programming)"
 											/>
-											<select
+											<Select
 												value={skill.proficiencyLevel}
-												onChange={(e) =>
-													updateSkill(
-														skill.id,
-														"proficiencyLevel",
-														e.target.value
-													)
+												onValueChange={(value) =>
+													updateSkill(skill.id, "proficiencyLevel", value)
 												}
-												className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring text-sm"
 											>
-												<option value="">Select proficiency</option>
-												<option value="Beginner">Beginner</option>
-												<option value="Intermediate">Intermediate</option>
-												<option value="Advanced">Advanced</option>
-												<option value="Expert">Expert</option>
-											</select>
+												<SelectTrigger className="w-full text-sm">
+													<SelectValue placeholder="Select proficiency" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="Beginner">Beginner</SelectItem>
+													<SelectItem value="Intermediate">
+														Intermediate
+													</SelectItem>
+													<SelectItem value="Advanced">Advanced</SelectItem>
+													<SelectItem value="Expert">Expert</SelectItem>
+												</SelectContent>
+											</Select>
 										</div>
 									</div>
 								))}
