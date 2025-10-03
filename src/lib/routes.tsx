@@ -1,5 +1,7 @@
 import React from "react";
 import Dashboard from "../pages/Dashboard.tsx";
+import ResumeView from "../pages/ResumeView.tsx";
+import ResumeEdit from "../pages/ResumeEdit.tsx";
 
 import {
 	IconDashboard,
@@ -7,6 +9,8 @@ import {
 	IconListDetails,
 	IconUsers,
 	IconChartBar,
+	IconEye,
+	IconEdit,
 } from "@tabler/icons-react";
 
 export interface RouteConfig {
@@ -25,33 +29,51 @@ export const routeConfig: RouteConfig[] = [
 		icon: <IconDashboard />,
 		description: "Overview and main dashboard",
 	},
-	{
-		path: "/lifecycle",
-		title: "Lifecycle",
-		element: <div>Lifecycle</div>,
-		icon: <IconListDetails />,
-		description: "Project lifecycle management",
-	},
-	{
-		path: "/analytics",
-		title: "Analytics",
-		element: <div>Analytics</div>,
-		icon: <IconChartBar />,
-		description: "Data analytics and insights",
-	},
-	{
-		path: "/projects",
-		title: "Projects",
-		element: <div>Projects</div>,
-		icon: <IconFolder />,
-		description: "Project management",
-	},
+	// {
+	// 	path: "/lifecycle",
+	// 	title: "Lifecycle",
+	// 	element: <div>Lifecycle</div>,
+	// 	icon: <IconListDetails />,
+	// 	description: "Project lifecycle management",
+	// },
+	// {
+	// 	path: "/analytics",
+	// 	title: "Analytics",
+	// 	element: <div>Analytics</div>,
+	// 	icon: <IconChartBar />,
+	// 	description: "Data analytics and insights",
+	// },
+	// {
+	// 	path: "/projects",
+	// 	title: "Projects",
+	// 	element: <div>Projects</div>,
+	// 	icon: <IconFolder />,
+	// 	description: "Project management",
+	// },
 	{
 		path: "/team",
 		title: "Team",
 		element: <div>Team</div>,
 		icon: <IconUsers />,
 		description: "Team management and collaboration",
+	},
+];
+
+// Resume-specific routes (not shown in sidebar)
+export const resumeRoutes: RouteConfig[] = [
+	{
+		path: "/resume/:id",
+		title: "View Resume",
+		element: <ResumeView />,
+		icon: <IconEye />,
+		description: "View resume details",
+	},
+	{
+		path: "/resume/:id/edit",
+		title: "Edit Resume",
+		element: <ResumeEdit />,
+		icon: <IconEdit />,
+		description: "Edit resume information",
 	},
 ];
 
@@ -65,8 +87,8 @@ export const getRouteTitle = (path: string): string => {
 	return route?.title || "Unknown Page";
 };
 
-// Export just the routes for React Router
-export const routes = routeConfig.map(({ path, element }) => ({
-	path,
-	element,
-}));
+// Export all routes for React Router (main routes + resume routes)
+export const routes = [
+	...routeConfig.map(({ path, element }) => ({ path, element })),
+	...resumeRoutes.map(({ path, element }) => ({ path, element })),
+];

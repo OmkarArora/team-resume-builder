@@ -10,6 +10,7 @@ import { SidebarInset, SidebarProvider } from "./components/ui/sidebar.tsx";
 import { AppSidebar } from "./components/app-sidebar.tsx";
 import { SiteHeader } from "./components/site-header.tsx";
 import { routes } from "./lib/routes";
+import { Toaster } from "sonner";
 
 createRoot(document.getElementById("root")!).render(
 	<StrictMode>
@@ -27,6 +28,8 @@ createRoot(document.getElementById("root")!).render(
 					</Routes>
 				</RootLayout>
 			</BrowserRouter>
+
+			<Toaster />
 		</ThemeProvider>
 	</StrictMode>
 );
