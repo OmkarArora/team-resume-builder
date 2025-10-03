@@ -3,7 +3,6 @@ import {
 	ArrowLeft,
 	Edit,
 	Download,
-	Share,
 	Mail,
 	Phone,
 	MapPin,
@@ -14,13 +13,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useResumeById } from "@/lib/store";
-import { useInitializeStore } from "@/lib/hooks";
+import BackButton from "@/components/ui/back-button";
 
 export default function ResumeView() {
 	const { id } = useParams<{ id: string }>();
-
-	// Initialize store with mock data if empty
-	useInitializeStore();
 
 	// Get resume from store
 	const resume = useResumeById(id || "");
@@ -35,8 +31,10 @@ export default function ResumeView() {
 					</p>
 					<Button asChild className="mt-4">
 						<Link to="/">
-							<ArrowLeft className="mr-2 h-4 w-4" />
-							Back to Resumes
+							<div className="flex items-center gap-2">
+								<ArrowLeft className="h-4 w-4" />
+								Back to Resumes
+							</div>
 						</Link>
 					</Button>
 				</div>
@@ -87,13 +85,8 @@ export default function ResumeView() {
 					{/* Header */}
 					<div className="flex items-center justify-between px-4 lg:px-6">
 						<div className="flex items-center gap-4">
-							<Button variant="outline" size="sm" asChild>
-								<Link to="/">
-									<ArrowLeft className="mr-2 h-4 w-4" />
-									Back
-								</Link>
-							</Button>
-							<div>
+							<BackButton />
+							<div className="flex items-baseline flex-wrap gap-2">
 								<h1 className="text-3xl font-bold tracking-tight">
 									{resume.fullName}
 								</h1>
@@ -103,17 +96,17 @@ export default function ResumeView() {
 						<div className="flex items-center gap-2">
 							<Button variant="outline" size="sm" asChild>
 								<Link to={`/resume/${resume.id}/edit`}>
-									<Edit className="mr-2 h-4 w-4" />
-									Edit
+									<div className="flex items-center gap-2">
+										<Edit className="h-4 w-4" />
+										Edit
+									</div>
 								</Link>
 							</Button>
 							<Button variant="outline" size="sm">
-								<Download className="mr-2 h-4 w-4" />
-								Download
-							</Button>
-							<Button variant="outline" size="sm">
-								<Share className="mr-2 h-4 w-4" />
-								Share
+								<div className="flex items-center gap-2">
+									<Download className="h-4 w-4" />
+									Download
+								</div>
 							</Button>
 						</div>
 					</div>

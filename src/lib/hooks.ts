@@ -1,9 +1,42 @@
-import { useEffect } from "react";
-import { useResumeStore } from "./store";
-import type { Resume } from "./types";
+import { useResumeStore, useTeamStore } from "./store";
+import type { Resume, TeamMember } from "./types";
 
-// Global flag to prevent multiple initializations
-let isInitialized = false;
+// Constants for localStorage keys
+const INITIALIZATION_FLAG_KEY = "trb-store-initialized";
+const TEAM_INITIALIZATION_FLAG_KEY = "trb-team-initialized";
+
+// Helper functions for localStorage management
+const isStoreInitialized = (): boolean => {
+	return localStorage.getItem(INITIALIZATION_FLAG_KEY) === "true";
+};
+
+const setStoreInitialized = (): void => {
+	localStorage.setItem(INITIALIZATION_FLAG_KEY, "true");
+};
+
+const isTeamInitialized = (): boolean => {
+	return localStorage.getItem(TEAM_INITIALIZATION_FLAG_KEY) === "true";
+};
+
+const setTeamInitialized = (): void => {
+	localStorage.setItem(TEAM_INITIALIZATION_FLAG_KEY, "true");
+};
+
+const resetInitializationFlags = (): void => {
+	localStorage.removeItem(INITIALIZATION_FLAG_KEY);
+	localStorage.removeItem(TEAM_INITIALIZATION_FLAG_KEY);
+};
+
+/**
+ * Utility function to manually reset initialization flags
+ * Useful for development/testing when you want to force re-initialization
+ */
+export const resetStoreInitialization = (): void => {
+	resetInitializationFlags();
+	console.log(
+		"Store initialization flags reset. Store will be re-initialized on next app start."
+	);
+};
 
 // Mock data for development/testing
 const mockResumes: Resume[] = [
@@ -151,23 +184,47 @@ const mockResumes: Resume[] = [
 ];
 
 /**
- * Hook to initialize the store with mock data for development
- * Only runs if the store is empty and not already initialized globally
+ * Function to initialize the store with mock data for development
+ * Only runs if the store is empty and not already initialized (tracked in localStorage)
  */
-export const useInitializeStore = () => {
-	const { resumes, addResume } = useResumeStore();
+export const initializeStore = () => {
+	const resumeStore = useResumeStore.getState();
 
-	useEffect(() => {
-		// Only initialize if store is empty and not already initialized globally
-		if (resumes.length === 0 && !isInitialized) {
-			console.log("Initializing store with mock data...");
-			isInitialized = true;
-			mockResumes.forEach((resume) => {
-				addResume(resume);
-			});
-			console.log("Store initialization complete");
-		}
-	}, [resumes.length]); // Only depend on resumes.length to prevent infinite loop
+	// Only initialize if store is empty and not already initialized
+	if (resumeStore.resumes.length === 0 && !isStoreInitialized()) {
+		console.log("Initializing store with mock data...");
+		setStoreInitialized();
+		mockResumes.forEach((resume) => {
+			resumeStore.addResume(resume);
+		});
+		console.log("Store initialization complete");
+	}
+
+	// Initialize team members linked to existing mock resumes (once)
+	// Get fresh state after potential resume additions
+	const currentResumeStore = useResumeStore.getState();
+	const currentTeamStore = useTeamStore.getState();
+
+	if (
+		!isTeamInitialized() &&
+		currentTeamStore.teamMembers.length === 0 &&
+		currentResumeStore.resumes.length > 0
+	) {
+		setTeamInitialized();
+		console.log("Initializing team members...");
+		// Seed team members based on existing resumes so linkage reflects initial data
+		const mockTeam: Omit<TeamMember, "id" | "createdAt" | "updatedAt">[] =
+			currentResumeStore.resumes.slice(0, 5).map((r) => ({
+				fullName: r.fullName,
+				role: r.title,
+				email: r.email,
+				avatarUrl: undefined,
+				resumeIds: [r.id],
+			}));
+
+		mockTeam.forEach((m) => currentTeamStore.addMember(m));
+		console.log("Team initialization complete");
+	}
 };
 
 /**
@@ -180,8 +237,8 @@ export const useClearStore = () => {
 		resumes.forEach((resume) => {
 			deleteResume(resume.id);
 		});
-		// Reset initialization flag when clearing
-		isInitialized = false;
+		// Reset initialization flags when clearing
+		resetInitializationFlags();
 	};
 
 	return { clearAllResumes };

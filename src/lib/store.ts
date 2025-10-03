@@ -1,7 +1,13 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { useMemo } from "react";
-import type { Resume, WorkExperience, Education, Skill } from "./types";
+
+import type {
+	Resume,
+	WorkExperience,
+	Education,
+	Skill,
+	TeamMember,
+} from "./types";
 
 interface ResumeStore {
 	// State
@@ -115,6 +121,14 @@ export const useResumeStore = create<ResumeStore>()(
 						state.currentResume?.id === id ? null : state.currentResume,
 					error: null,
 				}));
+
+				// Also unlink the resume from all team members
+				const teamStore = useTeamStore.getState();
+				teamStore.teamMembers.forEach((member) => {
+					if (member.resumeIds.includes(id)) {
+						teamStore.unlinkResumeFromMember(member.id, id);
+					}
+				});
 			},
 
 			getResume: (id) => {
@@ -398,24 +412,6 @@ export const useResumeStore = create<ResumeStore>()(
 export const useResumes = () => useResumeStore((state) => state.resumes);
 export const useCurrentResume = () =>
 	useResumeStore((state) => state.currentResume);
-export const useResumeActions = () => {
-	const addResume = useResumeStore((state) => state.addResume);
-	const updateResume = useResumeStore((state) => state.updateResume);
-	const deleteResume = useResumeStore((state) => state.deleteResume);
-	const getResume = useResumeStore((state) => state.getResume);
-	const setCurrentResume = useResumeStore((state) => state.setCurrentResume);
-
-	return useMemo(
-		() => ({
-			addResume,
-			updateResume,
-			deleteResume,
-			getResume,
-			setCurrentResume,
-		}),
-		[addResume, updateResume, deleteResume, getResume, setCurrentResume]
-	);
-};
 
 // Utility hooks for specific operations
 export const useResumeById = (id: string) =>
@@ -433,3 +429,87 @@ export const useRecentResumes = (limit: number = 5) =>
 			)
 			.slice(0, limit)
 	);
+
+// ---------------- TEAM STORE ----------------
+
+interface TeamStore {
+	teamMembers: TeamMember[];
+	addMember: (
+		member: Omit<TeamMember, "id" | "createdAt" | "updatedAt">
+	) => void;
+	updateMember: (
+		id: string,
+		member: Omit<TeamMember, "id" | "createdAt" | "updatedAt">
+	) => void;
+	deleteMember: (id: string) => void;
+	getMember: (id: string) => TeamMember | undefined;
+	linkResumeToMember: (memberId: string, resumeId: string) => void;
+	unlinkResumeFromMember: (memberId: string, resumeId: string) => void;
+}
+
+export const useTeamStore = create<TeamStore>()(
+	persist(
+		(set, get) => ({
+			teamMembers: [],
+			addMember: (data) => {
+				const newMember: TeamMember = {
+					...data,
+					id: generateId(),
+					createdAt: getCurrentTimestamp(),
+					updatedAt: getCurrentTimestamp(),
+				};
+				set((state) => ({ teamMembers: [...state.teamMembers, newMember] }));
+			},
+			updateMember: (id, data) => {
+				set((state) => ({
+					teamMembers: state.teamMembers.map((m) =>
+						m.id === id
+							? { ...m, ...data, updatedAt: getCurrentTimestamp() }
+							: m
+					),
+				}));
+			},
+			deleteMember: (id) => {
+				set((state) => ({
+					teamMembers: state.teamMembers.filter((m) => m.id !== id),
+				}));
+			},
+			getMember: (id) => get().teamMembers.find((m) => m.id === id),
+			linkResumeToMember: (memberId, resumeId) => {
+				const resume = useResumeStore.getState().getResume(resumeId);
+				set((state) => ({
+					teamMembers: state.teamMembers.map((m) => {
+						if (m.id !== memberId || m.resumeIds.includes(resumeId)) return m;
+						const next: TeamMember = {
+							...m,
+							resumeIds: [...m.resumeIds, resumeId],
+							updatedAt: getCurrentTimestamp(),
+						};
+						if (resume && resume.fullName && resume.fullName !== m.fullName) {
+							next.fullName = resume.fullName;
+						}
+						return next;
+					}),
+				}));
+			},
+			unlinkResumeFromMember: (memberId, resumeId) => {
+				set((state) => ({
+					teamMembers: state.teamMembers.map((m) =>
+						m.id === memberId
+							? {
+									...m,
+									resumeIds: m.resumeIds.filter((r) => r !== resumeId),
+									updatedAt: getCurrentTimestamp(),
+							  }
+							: m
+					),
+				}));
+			},
+		}),
+		{
+			name: "team-store",
+			storage: createJSONStorage(() => localStorage),
+			partialize: (state) => ({ teamMembers: state.teamMembers }),
+		}
+	)
+);

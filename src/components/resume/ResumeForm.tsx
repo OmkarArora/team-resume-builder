@@ -1,4 +1,4 @@
-import { useReducer, useCallback, useMemo } from "react";
+import { useReducer, useCallback, useMemo, useEffect } from "react";
 import {
 	type Resume,
 	type WorkExperience,
@@ -15,6 +15,9 @@ interface ResumeFormProps {
 	resume?: Resume;
 	onSave: (resume: Omit<Resume, "id" | "createdAt" | "updatedAt">) => void;
 	onChange?: () => void;
+	prefillFullName?: string;
+	prefillEmail?: string;
+	prefillTitle?: string;
 }
 
 type FormState = Omit<Resume, "id" | "createdAt" | "updatedAt">;
@@ -112,6 +115,9 @@ export default function ResumeForm({
 	resume,
 	onSave,
 	onChange,
+	prefillFullName,
+	prefillEmail,
+	prefillTitle,
 }: ResumeFormProps) {
 	const initialState = useMemo(() => {
 		return {
@@ -130,6 +136,34 @@ export default function ResumeForm({
 	}, [resume]);
 
 	const [formState, dispatch] = useReducer(formReducer, initialState);
+
+	// If a prefill name is provided (e.g., from team member selection), sync it into the form
+	useEffect(() => {
+		if (prefillFullName && prefillFullName !== formState.fullName) {
+			dispatch({
+				type: "SET_FIELD",
+				field: "fullName",
+				value: prefillFullName,
+			});
+			onChange?.();
+		}
+	}, [prefillFullName, formState.fullName, onChange]);
+
+	// Prefill email when provided
+	useEffect(() => {
+		if (prefillEmail && prefillEmail !== formState.email) {
+			dispatch({ type: "SET_FIELD", field: "email", value: prefillEmail });
+			onChange?.();
+		}
+	}, [prefillEmail, formState.email, onChange]);
+
+	// Prefill title when provided
+	useEffect(() => {
+		if (prefillTitle && prefillTitle !== formState.title) {
+			dispatch({ type: "SET_FIELD", field: "title", value: prefillTitle });
+			onChange?.();
+		}
+	}, [prefillTitle, formState.title, onChange]);
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();

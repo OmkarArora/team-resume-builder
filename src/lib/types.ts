@@ -42,3 +42,14 @@ export interface Resume {
 	createdAt: string;
 	updatedAt: string;
 }
+
+export interface TeamMember {
+	id: string;
+	fullName: string;
+	role: string;
+	email: string;
+	avatarUrl?: string;
+	resumeIds: string[];
+	createdAt: string;
+	updatedAt: string;
+}

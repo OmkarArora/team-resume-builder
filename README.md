@@ -144,25 +144,6 @@ updateSkill(resumeId, skillId, skill);
 removeSkill(resumeId, skillId);
 ```
 
-### 🎯 **Usage Examples**
-
-```typescript
-import { useResumes, useResumeActions } from "@/lib/store";
-
-function MyComponent() {
-	const resumes = useResumes();
-	const { addResume, updateResume } = useResumeActions();
-
-	const handleCreate = () => {
-		addResume({
-			fullName: "John Doe",
-			email: "john@example.com",
-			// ... other fields
-		});
-	};
-}
-```
-
 ### 🔄 **Data Persistence**
 
 - **Automatic**: Data is automatically saved to localStorage

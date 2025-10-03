@@ -2,6 +2,7 @@ import { Monitor, Moon, Sun } from "lucide-react";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { themes, useTheme } from "@/components/themes/theme-provider";
+import { cn } from "@/lib/utils";
 
 export function ThemeToggle({ className }: { className?: string }) {
 	const { theme, setTheme } = useTheme();
@@ -15,10 +16,15 @@ export function ThemeToggle({ className }: { className?: string }) {
 			}}
 			variant="outline"
 			size="sm"
-			className={className}
+			className={cn("w-full", className)}
 		>
 			{themes.map((theme) => (
-				<ToggleGroupItem value={theme} aria-label={theme} key={theme}>
+				<ToggleGroupItem
+					className="w-full"
+					value={theme}
+					aria-label={theme}
+					key={theme}
+				>
 					{theme === "light" ? (
 						<Sun className="h-4 w-4" />
 					) : theme === "dark" ? (

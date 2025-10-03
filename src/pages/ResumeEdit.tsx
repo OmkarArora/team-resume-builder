@@ -1,35 +1,22 @@
-import { useParams, Link, useNavigate } from "react-router";
-import { ArrowLeft, Save, X } from "lucide-react";
+import { useParams, useNavigate } from "react-router";
+import { Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import ResumeForm from "@/components/resume/ResumeForm";
-import { useResumeById, useResumeActions } from "@/lib/store";
-import { useInitializeStore } from "@/lib/hooks";
+import { useResumeById, useResumeStore } from "@/lib/store";
 import type { Resume } from "@/lib/types";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import BackButton from "@/components/ui/back-button";
 
 export default function ResumeEdit() {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-	// Initialize store with mock data if empty
-	useInitializeStore();
-
 	// Get resume from store
 	const resume = useResumeById(id || "");
-	const { updateResume } = useResumeActions();
+	const updateResume = useResumeStore((state) => state.updateResume);
 
 	if (!resume) {
 		return (
@@ -39,12 +26,7 @@ export default function ResumeEdit() {
 					<p className="text-muted-foreground mt-2">
 						The resume you're trying to edit doesn't exist.
 					</p>
-					<Button asChild className="mt-4">
-						<Link to="/">
-							<ArrowLeft className="mr-2 h-4 w-4" />
-							Back to Resumes
-						</Link>
-					</Button>
+					<BackButton />
 				</div>
 			</div>
 		);
@@ -101,46 +83,32 @@ export default function ResumeEdit() {
 					{/* Header */}
 					<div className="flex items-center justify-between px-4 lg:px-6">
 						<div className="flex items-center gap-4">
-							<Button variant="outline" size="sm" asChild>
-								<Link to={`/resume/${id}`}>
-									<ArrowLeft className="mr-2 h-4 w-4" />
-									Back to View
-								</Link>
-							</Button>
+							<BackButton />
 							<div>
 								<h1 className="text-3xl font-bold tracking-tight">
-									Edit Resume
-								</h1>
-								<p className="text-muted-foreground">
 									Editing {resume.fullName}'s resume
-								</p>
+								</h1>
 							</div>
 						</div>
 						<div className="flex items-center gap-2">
-							<AlertDialog>
-								<AlertDialogTrigger asChild>
+							<ConfirmationDialog
+								trigger={
 									<Button variant="outline" size="sm">
 										<X className="mr-2 h-4 w-4" />
 										Cancel
 									</Button>
-								</AlertDialogTrigger>
-								<AlertDialogContent>
-									<AlertDialogHeader>
-										<AlertDialogTitle>Discard Changes?</AlertDialogTitle>
-										<AlertDialogDescription>
-											{hasUnsavedChanges
-												? "You have unsaved changes. Are you sure you want to discard them and return to the view page?"
-												: "Are you sure you want to return to the view page?"}
-										</AlertDialogDescription>
-									</AlertDialogHeader>
-									<AlertDialogFooter>
-										<AlertDialogCancel>Keep Editing</AlertDialogCancel>
-										<AlertDialogAction onClick={handleCancelConfirm}>
-											Discard Changes
-										</AlertDialogAction>
-									</AlertDialogFooter>
-								</AlertDialogContent>
-							</AlertDialog>
+								}
+								title="Discard Changes?"
+								description={
+									hasUnsavedChanges
+										? "You have unsaved changes. Are you sure you want to discard them and return to the view page?"
+										: "Are you sure you want to return to the view page?"
+								}
+								confirmText="Discard Changes"
+								cancelText="Keep Editing"
+								onConfirm={handleCancelConfirm}
+								variant="default"
+							/>
 							<Button
 								size="sm"
 								onClick={() => {
