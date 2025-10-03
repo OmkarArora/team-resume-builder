@@ -17,7 +17,7 @@ import { useResumeById, useResumeActions } from "@/lib/store";
 import { useInitializeStore } from "@/lib/hooks";
 import type { Resume } from "@/lib/types";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ResumeEdit() {
 	const { id } = useParams<{ id: string }>();
@@ -75,6 +75,24 @@ export default function ResumeEdit() {
 	const handleCancelConfirm = () => {
 		navigate(`/resume/${id}`);
 	};
+
+	// Handle browser close/refresh with unsaved changes
+	useEffect(() => {
+		const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+			if (hasUnsavedChanges) {
+				event.preventDefault();
+				// Modern browsers ignore custom messages, but we still need to set returnValue
+				event.returnValue = "";
+				return "";
+			}
+		};
+
+		window.addEventListener("beforeunload", handleBeforeUnload);
+
+		return () => {
+			window.removeEventListener("beforeunload", handleBeforeUnload);
+		};
+	}, [hasUnsavedChanges]);
 
 	return (
 		<div className="flex flex-1 flex-col">
