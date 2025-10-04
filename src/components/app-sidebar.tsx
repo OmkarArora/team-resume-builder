@@ -1,5 +1,4 @@
 import * as React from "react";
-import { IconFileCv } from "@tabler/icons-react";
 
 import {
 	Sidebar,
@@ -26,7 +25,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							className="data-[slot=sidebar-menu-button]:!p-1.5"
 						>
 							<NavLink to="/" title="Team Resume Builder">
-								<IconFileCv className="!size-5" />
+								<img
+									src="/android-chrome-192x192.png"
+									alt="Team Resume Builder"
+									className="!size-5"
+								/>
 								<span className="text-base font-semibold">TRB</span>
 							</NavLink>
 						</SidebarMenuButton>
