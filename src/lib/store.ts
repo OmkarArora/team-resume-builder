@@ -513,3 +513,38 @@ export const useTeamStore = create<TeamStore>()(
 		}
 	)
 );
+
+// ---------------- ONBOARDING STORE ----------------
+
+interface OnboardingStore {
+	hasCompletedOnboarding: boolean;
+	showWelcomeDialog: boolean;
+	completeOnboarding: () => void;
+	showWelcome: () => void;
+	hideWelcome: () => void;
+}
+
+export const useOnboardingStore = create<OnboardingStore>()(
+	persist(
+		(set) => ({
+			hasCompletedOnboarding: false,
+			showWelcomeDialog: false,
+			completeOnboarding: () => {
+				set({ hasCompletedOnboarding: true, showWelcomeDialog: false });
+			},
+			showWelcome: () => {
+				set({ showWelcomeDialog: true });
+			},
+			hideWelcome: () => {
+				set({ showWelcomeDialog: false });
+			},
+		}),
+		{
+			name: "onboarding-store",
+			storage: createJSONStorage(() => localStorage),
+			partialize: (state) => ({
+				hasCompletedOnboarding: state.hasCompletedOnboarding,
+			}),
+		}
+	)
+);

@@ -56,7 +56,10 @@ export default function ResumeList() {
 			<div className="@container/main flex flex-1 flex-col gap-2">
 				<div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
 					{/* Header */}
-					<div className="flex items-center justify-between gap-4 px-4 lg:px-6 flex-wrap">
+					<div
+						className="flex items-center justify-between gap-4 px-4 lg:px-6 flex-wrap"
+						data-tour="dashboard-header"
+					>
 						<div className="flex items-center gap-3">
 							<FileText className="h-6 w-6" />
 							<p className="text-foreground">
@@ -71,7 +74,7 @@ export default function ResumeList() {
 								ariaLabel="Search resumes"
 								className="w-full sm:w-[200px] md:w-[260px]"
 							/>
-							<Button asChild>
+							<Button asChild data-tour="create-resume-btn">
 								<Link to="/resume/new">
 									<div className="flex items-center gap-2">
 										<Plus className="h-4 w-4" />

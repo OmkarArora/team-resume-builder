@@ -12,6 +12,7 @@ import { SiteHeader } from "./components/site-header.tsx";
 import { routes } from "./lib/routes";
 import { Toaster } from "sonner";
 import { initializeStore } from "./lib/hooks";
+import { OnboardingManager } from "./components/onboarding/OnboardingManager";
 
 // Initialize store with mock data when app starts
 initializeStore();
@@ -31,6 +32,7 @@ createRoot(document.getElementById("root")!).render(
 						))}
 					</Routes>
 				</RootLayout>
+				<OnboardingManager />
 			</BrowserRouter>
 
 			<Toaster />

@@ -50,7 +50,10 @@ export default function Team() {
 			<div className="@container/main flex flex-1 flex-col gap-2">
 				{/* Header */}
 				<div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-					<div className="flex items-center justify-between px-4 lg:px-6 flex-wrap gap-4">
+					<div
+						className="flex items-center justify-between px-4 lg:px-6 flex-wrap gap-4"
+						data-tour="team-header"
+					>
 						<div className="flex items-center gap-3">
 							<Users className="h-6 w-6" />
 							<p className="text-foreground">Manage your team members</p>
@@ -63,7 +66,7 @@ export default function Team() {
 								ariaLabel="Search members"
 								className="w-full sm:w-[200px] md:w-56"
 							/>
-							<Button onClick={() => setOpen(true)}>
+							<Button onClick={() => setOpen(true)} data-tour="add-member-btn">
 								<UserPlus className="h-4 w-4" />
 								Add Member
 							</Button>
