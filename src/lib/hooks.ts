@@ -1,5 +1,6 @@
 import { useResumeStore, useTeamStore } from "./store";
 import type { Resume, TeamMember } from "./types";
+import { exportResumeToPDF } from "./pdfExport";
 
 // Constants for localStorage keys
 const INITIALIZATION_FLAG_KEY = "trb-store-initialized";
@@ -309,4 +310,15 @@ export const useImportStore = () => {
 	};
 
 	return { importData };
+};
+
+/**
+ * Hook to export resume as PDF using react-pdf
+ */
+export const useReactPDFExport = () => {
+	const exportToPDF = async (resume: Resume) => {
+		return await exportResumeToPDF(resume);
+	};
+
+	return { exportToPDF };
 };

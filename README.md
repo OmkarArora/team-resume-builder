@@ -11,10 +11,14 @@ A modern React application for creating, viewing, and editing resumes with a cle
 - Shadcn/ui
 - Lucide React
 - Zustand (State Management)
+- @react-pdf/renderer (PDF Generation)
 
 ## Features
 
 - **Resume Management**: Create, view, and edit resumes
+- **PDF Export**: Generate and download professional PDF resumes
+- **PDF Preview**: Preview PDFs in new browser tabs
+- **Team Management**: Organize team members and link resumes
 - **Modern UI**: Built with Tailwind CSS and shadcn/ui components
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 - **Form State Management**: Efficient state handling with useReducer
@@ -55,8 +59,14 @@ The routing system is built around a single source of truth configuration file (
 
 #### Resume Routes
 
+- `/resume/new` - Create a new resume
 - `/resume/:id` - View a specific resume
 - `/resume/:id/edit` - Edit a specific resume
+
+#### Team Routes
+
+- `/team` - Team management and collaboration
+- `/team/:id` - View individual team member
 
 ### 🔧 **How It Works**
 
@@ -155,9 +165,11 @@ removeSkill(resumeId, skillId);
 ### Pages
 
 - **Dashboard** (`/pages/Dashboard.tsx`) - Main landing page showing resume list
-- **ResumeList** (`/pages/ResumeList.tsx`) - Displays all resumes in a grid layout
-- **ResumeView** (`/pages/ResumeView.tsx`) - Shows detailed resume information
+- **ResumeNew** (`/pages/ResumeNew.tsx`) - Create new resume form
+- **ResumeView** (`/pages/ResumeView.tsx`) - Shows detailed resume information with PDF export
 - **ResumeEdit** (`/pages/ResumeEdit.tsx`) - Edit resume using the ResumeForm component
+- **Team** (`/pages/Team.tsx`) - Team management and collaboration
+- **TeamMember** (`/pages/TeamMember.tsx`) - Individual team member view
 
 ### Forms
 
@@ -165,6 +177,19 @@ removeSkill(resumeId, skillId);
   - Uses useReducer for efficient state management
   - Supports work experience, education, and skills sections
   - Real-time form validation and error handling
+
+### PDF Components
+
+- **ResumePDFDocument** (`/components/resume/pdf/ResumePDFDocument.tsx`) - PDF document template
+  - Professional two-column layout
+  - Built-in Helvetica font for reliability
+  - Responsive design for A4 format
+  - Clean, modern styling
+
+### Team Components
+
+- **AddMemberDialog** (`/components/team/AddMemberDialog.tsx`) - Add new team members
+- **ResumeList** (`/components/resume/ResumeList.tsx`) - Resume grid display with actions
 
 ## Getting Started
 
@@ -188,28 +213,61 @@ removeSkill(resumeId, skillId);
 src/
 ├── components/
 │   ├── resume/
-│   │   └── ResumeForm.tsx      # Main resume form component
+│   │   ├── ResumeForm.tsx      # Main resume form component
+│   │   ├── ResumeList.tsx      # Resume grid display
+│   │   └── pdf/
+│   │       └── ResumePDFDocument.tsx  # PDF template
+│   ├── team/
+│   │   └── AddMemberDialog.tsx # Team member management
 │   ├── ui/                     # Reusable UI components
 │   └── ...
 ├── pages/
 │   ├── Dashboard.tsx           # Main dashboard
-│   ├── ResumeList.tsx          # Resume listing page
-│   ├── ResumeView.tsx          # Resume viewing page
-│   └── ResumeEdit.tsx          # Resume editing page
+│   ├── ResumeNew.tsx          # Create new resume
+│   ├── ResumeView.tsx         # Resume viewing with PDF export
+│   ├── ResumeEdit.tsx         # Resume editing page
+│   ├── Team.tsx               # Team management
+│   └── TeamMember.tsx         # Individual team member view
 ├── lib/
 │   ├── store.ts                # Zustand store configuration
 │   ├── hooks.ts                # Custom hooks for store operations
+│   ├── pdfExport.tsx           # PDF generation utilities
 │   ├── routes.tsx              # Route configuration
 │   ├── types.ts                # TypeScript type definitions
 │   └── utils.ts                # Utility functions
 └── ...
 ```
 
+## PDF Export Features
+
+The application includes comprehensive PDF export functionality:
+
+### PDF Generation
+
+- **Professional Layout**: Two-column design with clean typography
+- **Built-in Fonts**: Uses Helvetica for reliable rendering across all systems
+- **Responsive Design**: Optimized for A4 paper format
+- **Complete Data**: Includes all resume sections (experience, education, skills)
+
+### PDF Actions
+
+- **Preview**: Opens PDF in new browser tab for review
+- **Download**: Direct download with formatted filename
+- **Error Handling**: Graceful fallbacks for popup blockers and generation errors
+
+### Technical Implementation
+
+- **@react-pdf/renderer**: Industry-standard PDF generation library
+- **Blob URLs**: Efficient memory management with automatic cleanup
+- **Type Safety**: Full TypeScript support for PDF components
+
 ## Future Enhancements
 
+- [x] PDF export functionality ✅
 - [ ] Add resume templates
-- [ ] PDF export functionality
 - [ ] Resume sharing capabilities
 - [ ] User authentication
 - [ ] Resume analytics
 - [ ] Collaborative editing
+- [ ] Multiple PDF themes
+- [ ] Batch PDF generation

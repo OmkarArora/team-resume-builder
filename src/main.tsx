@@ -59,16 +59,8 @@ function RootLayout({ children }: { children: React.ReactNode }) {
 
 // TODO
 /**
- 1. Team Page
- 2. CRUD operations for team members
- 3. Add a team member
- 4. Edit a team member
- 5. Delete a team member
- 6. View a team member
- 7. View a team member's resume
- 8. Edit a team member's resume
- 9. Delete a team member's resume
- 10. Team members store
- 11. Connect Team member and Resume with ID
- 12. Add page navigation block with user has unsaved changes in resume edit page
+ 4. Close sidebar automatically when user clicks on a link - mobile
+ 5. Favicon and Page title
+ 6. Walkthrough system?
+ 7. Add page navigation block with user has unsaved changes in resume edit page
  */

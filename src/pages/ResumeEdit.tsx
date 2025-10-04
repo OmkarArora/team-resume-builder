@@ -81,7 +81,7 @@ export default function ResumeEdit() {
 			<div className="@container/main flex flex-1 flex-col gap-2">
 				<div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
 					{/* Header */}
-					<div className="flex items-center justify-between px-4 lg:px-6">
+					<div className="flex items-center justify-between px-4 lg:px-6 flex-wrap gap-2">
 						<div className="flex items-center gap-4">
 							<BackButton />
 							<div>
