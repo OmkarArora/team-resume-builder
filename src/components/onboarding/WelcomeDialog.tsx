@@ -115,7 +115,7 @@ export function WelcomeDialog({
 							</>
 						) : (
 							<>
-								<Rocket className="mr-2 h-4 w-4" />
+								<Rocket className="h-4 w-4" />
 								{isReturningUser ? "Watch Tour Again" : "Start Journey"}
 							</>
 						)}
