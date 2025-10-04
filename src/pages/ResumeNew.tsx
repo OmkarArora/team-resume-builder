@@ -65,7 +65,7 @@ export default function ResumeNew() {
 								if (form) form.requestSubmit();
 							}}
 						>
-							<Save className="mr-2 h-4 w-4" /> Save
+							<Save className="h-4 w-4" /> Save
 						</Button>
 					</div>
 
