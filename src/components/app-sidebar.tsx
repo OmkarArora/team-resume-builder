@@ -11,12 +11,16 @@ import {
 } from "@/components/ui/sidebar";
 import { ThemeToggle } from "./themes/theme-toggle";
 import { routeConfig } from "@/lib/routes";
+import { useOnboardingStore } from "@/lib/store";
+import { Info } from "lucide-react";
 
 import { NavLink } from "react-router";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+	const showWelcome = useOnboardingStore((state) => state.showWelcome);
+
 	return (
-		<Sidebar collapsible="offcanvas" {...props}>
+		<Sidebar collapsible="offcanvas" data-tour="sidebar" {...props}>
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
@@ -43,6 +47,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							<SidebarMenuButton tooltip={item.title} asChild>
 								<NavLink
 									to={item.path}
+									data-tour={item.path === "/team" ? "team-section" : undefined}
 									className={
 										"focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
 									}
@@ -53,6 +58,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 					))}
+
+					<SidebarMenuItem>
+						<SidebarMenuButton onClick={showWelcome} tooltip="About">
+							<Info />
+							About
+						</SidebarMenuButton>
+					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarContent>
 			<SidebarFooter>
