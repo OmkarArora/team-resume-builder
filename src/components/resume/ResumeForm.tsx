@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Select,
 	SelectContent,
@@ -598,26 +599,28 @@ export default function ResumeForm({
 												/>
 											</div>
 											<div className="flex items-center pt-8">
-												<Label className="flex items-center gap-2 cursor-pointer">
-													<input
-														type="checkbox"
+												<div className="flex items-center space-x-2">
+													<Checkbox
+														id={`current-${exp.id}`}
 														checked={exp.isCurrent}
-														onChange={(e) => {
+														onCheckedChange={(checked) => {
 															updateWorkExperience(
 																exp.id,
 																"isCurrent",
-																e.target.checked
+																checked
 															);
-															if (e.target.checked) {
+															if (checked) {
 																updateWorkExperience(exp.id, "endDate", null);
 															}
 														}}
-														className="w-4 h-4 text-primary border-input rounded focus:ring-ring"
 													/>
-													<span className="text-sm font-medium text-foreground">
+													<Label
+														htmlFor={`current-${exp.id}`}
+														className="text-sm font-medium text-foreground cursor-pointer"
+													>
 														Current Position
-													</span>
-												</Label>
+													</Label>
+												</div>
 											</div>
 											<div className="md:col-span-2">
 												<Label className="block text-sm font-medium mb-2">
