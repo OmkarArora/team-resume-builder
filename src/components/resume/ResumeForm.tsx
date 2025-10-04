@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
 	Select,
 	SelectContent,
@@ -549,35 +550,33 @@ export default function ResumeForm({
 												<Label className="block text-sm font-medium mb-2">
 													Start Date
 												</Label>
-												<input
-													type="date"
+												<DatePicker
 													value={exp.startDate}
-													onChange={(e) =>
+													onChange={(value) =>
 														updateWorkExperience(
 															exp.id,
 															"startDate",
-															e.target.value
+															value || ""
 														)
 													}
-													className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
+													placeholder="Select start date"
 												/>
 											</div>
 											<div>
 												<Label className="block text-sm font-medium mb-2">
 													End Date
 												</Label>
-												<input
-													type="date"
+												<DatePicker
 													value={exp.endDate || ""}
-													onChange={(e) =>
+													onChange={(value) =>
 														updateWorkExperience(
 															exp.id,
 															"endDate",
-															e.target.value || null
+															value || null
 														)
 													}
+													placeholder="Select end date"
 													disabled={exp.isCurrent}
-													className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring disabled:bg-muted"
 												/>
 											</div>
 											<div>
@@ -722,30 +721,24 @@ export default function ResumeForm({
 												<Label className="block text-sm font-medium mb-2">
 													Start Date
 												</Label>
-												<input
-													type="date"
+												<DatePicker
 													value={edu.startDate}
-													onChange={(e) =>
-														updateEducation(edu.id, "startDate", e.target.value)
+													onChange={(value) =>
+														updateEducation(edu.id, "startDate", value || "")
 													}
-													className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
+													placeholder="Select start date"
 												/>
 											</div>
 											<div>
 												<Label className="block text-sm font-medium mb-2">
 													End Date
 												</Label>
-												<input
-													type="date"
+												<DatePicker
 													value={edu.endDate || ""}
-													onChange={(e) =>
-														updateEducation(
-															edu.id,
-															"endDate",
-															e.target.value || null
-														)
+													onChange={(value) =>
+														updateEducation(edu.id, "endDate", value || null)
 													}
-													className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
+													placeholder="Select end date"
 												/>
 											</div>
 											<div>
