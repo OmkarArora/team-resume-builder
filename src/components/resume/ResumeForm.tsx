@@ -1,4 +1,4 @@
-import { useReducer, useCallback, useMemo, useEffect } from "react";
+import { useReducer, useCallback, useMemo, useEffect, useRef } from "react";
 import {
 	type Resume,
 	type WorkExperience,
@@ -128,6 +128,11 @@ export default function ResumeForm({
 	prefillEmail,
 	prefillTitle,
 }: ResumeFormProps) {
+	// Refs for auto-scrolling to newly added items
+	const lastWorkExperienceRef = useRef<HTMLDivElement>(null);
+	const lastEducationRef = useRef<HTMLDivElement>(null);
+	const lastSkillRef = useRef<HTMLDivElement>(null);
+
 	const initialState = useMemo(() => {
 		return {
 			fullName: resume?.fullName || "",
@@ -201,6 +206,14 @@ export default function ResumeForm({
 		};
 		dispatch({ type: "ADD_WORK_EXPERIENCE", experience: newExperience });
 		onChange?.();
+
+		// Auto-scroll to the new work experience after a brief delay to ensure DOM update
+		setTimeout(() => {
+			lastWorkExperienceRef.current?.scrollIntoView({
+				behavior: "smooth",
+				block: "center",
+			});
+		}, 100);
 	}, [onChange]);
 
 	const updateWorkExperience = useCallback(
@@ -235,6 +248,14 @@ export default function ResumeForm({
 		};
 		dispatch({ type: "ADD_EDUCATION", education: newEducation });
 		onChange?.();
+
+		// Auto-scroll to the new education after a brief delay to ensure DOM update
+		setTimeout(() => {
+			lastEducationRef.current?.scrollIntoView({
+				behavior: "smooth",
+				block: "center",
+			});
+		}, 100);
 	}, [onChange]);
 
 	const updateEducation = useCallback(
@@ -262,6 +283,14 @@ export default function ResumeForm({
 		};
 		dispatch({ type: "ADD_SKILL", skill: newSkill });
 		onChange?.();
+
+		// Auto-scroll to the new skill after a brief delay to ensure DOM update
+		setTimeout(() => {
+			lastSkillRef.current?.scrollIntoView({
+				behavior: "smooth",
+				block: "center",
+			});
+		}, 100);
 	}, [onChange]);
 
 	const updateSkill = useCallback(
@@ -382,8 +411,16 @@ export default function ResumeForm({
 						</CardHeader>
 						<CardContent>
 							<div className="space-y-4">
-								{formState.skills.map((skill) => (
-									<div key={skill.id} className="p-4 border rounded-lg">
+								{formState.skills.map((skill, index) => (
+									<div
+										key={skill.id}
+										className="p-4 border rounded-lg"
+										ref={
+											index === formState.skills.length - 1
+												? lastSkillRef
+												: null
+										}
+									>
 										<div className="flex justify-between items-start mb-3">
 											<h4 className="text-sm font-medium">Skill</h4>
 											<Button
@@ -496,7 +533,14 @@ export default function ResumeForm({
 						<CardContent className="space-y-4">
 							{formState.workExperiences.map((exp, index) => (
 								<div key={exp.id}>
-									<div className="p-4 border rounded-lg">
+									<div
+										className="p-4 border rounded-lg"
+										ref={
+											index === formState.workExperiences.length - 1
+												? lastWorkExperienceRef
+												: null
+										}
+									>
 										<div className="flex justify-between items-start mb-4">
 											<h4 className="text-sm font-medium">Experience Entry</h4>
 											<Button
@@ -671,7 +715,14 @@ export default function ResumeForm({
 						<CardContent className="space-y-4">
 							{formState.education.map((edu, index) => (
 								<div key={edu.id}>
-									<div className="p-4 border rounded-lg">
+									<div
+										className="p-4 border rounded-lg"
+										ref={
+											index === formState.education.length - 1
+												? lastEducationRef
+												: null
+										}
+									>
 										<div className="flex justify-between items-start mb-4">
 											<h4 className="text-sm font-medium">Education Entry</h4>
 											<Button
