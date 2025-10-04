@@ -61,8 +61,5 @@ function RootLayout({ children }: { children: React.ReactNode }) {
 
 // TODO
 /**
- 4. Close sidebar automatically when user clicks on a link - mobile
- 5. Favicon and Page title
- 6. Walkthrough system?
  7. Add page navigation block with user has unsaved changes in resume edit page
  */
