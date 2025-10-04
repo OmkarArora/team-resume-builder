@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Rocket, Users, FileText, Sparkles } from "lucide-react";
 import { useNavigate, useLocation } from "react-router";
+import { useOnboardingStore } from "@/lib/store";
 
 interface WelcomeDialogProps {
 	open: boolean;
@@ -26,6 +27,15 @@ export function WelcomeDialog({
 	const navigate = useNavigate();
 	const location = useLocation();
 	const [isStarting, setIsStarting] = useState(false);
+
+	const completeOnboarding = useOnboardingStore(
+		(state) => state.completeOnboarding
+	);
+
+	function skipOrClose() {
+		completeOnboarding();
+		onOpenChange(false);
+	}
 
 	const handleStartJourney = async () => {
 		setIsStarting(true);
@@ -47,7 +57,11 @@ export function WelcomeDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-md">
+			<DialogContent
+				className="sm:max-w-md"
+				onPointerDownOutside={skipOrClose}
+				showCloseButton={false}
+			>
 				<DialogHeader className="text-center">
 					<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
 						<Rocket className="h-8 w-8 text-primary" />
@@ -108,7 +122,7 @@ export function WelcomeDialog({
 					</Button>
 					<Button
 						variant="ghost"
-						onClick={() => onOpenChange(false)}
+						onClick={skipOrClose}
 						disabled={isStarting}
 						className="w-full"
 					>

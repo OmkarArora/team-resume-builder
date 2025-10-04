@@ -58,8 +58,3 @@ function RootLayout({ children }: { children: React.ReactNode }) {
 		</SidebarProvider>
 	);
 }
-
-// TODO
-/**
- 7. Add page navigation block with user has unsaved changes in resume edit page
- */
