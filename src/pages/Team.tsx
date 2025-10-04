@@ -55,13 +55,13 @@ export default function Team() {
 							<Users className="h-6 w-6" />
 							<p className="text-foreground">Manage your team members</p>
 						</div>
-						<div className="flex items-center gap-2">
+						<div className="flex items-center gap-2 flex-wrap">
 							<SearchBar
 								value={query}
 								onChange={setQuery}
 								placeholder="Search members..."
 								ariaLabel="Search members"
-								className="w-56"
+								className="w-full sm:w-[200px] md:w-56"
 							/>
 							<Button onClick={() => setOpen(true)}>
 								<UserPlus className="h-4 w-4" />

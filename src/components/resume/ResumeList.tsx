@@ -63,12 +63,13 @@ export default function ResumeList() {
 								Manage and view all your resumes
 							</p>
 						</div>
-						<div className="flex items-center gap-2">
+						<div className="flex items-center gap-2 flex-wrap">
 							<SearchBar
 								value={query}
 								onChange={setQuery}
 								placeholder="Search resumes..."
 								ariaLabel="Search resumes"
+								className="w-full sm:w-[200px] md:w-[260px]"
 							/>
 							<Button asChild>
 								<Link to="/resume/new">
