@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- theme context + hook exports */
 import { createContext, useContext, useEffect, useState } from "react";
 
 export type Theme = "dark" | "light" | "system";

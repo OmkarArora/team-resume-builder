@@ -5,12 +5,14 @@ import ResumeEdit from "../pages/ResumeEdit.tsx";
 import ResumeNew from "../pages/ResumeNew.tsx";
 import Team from "../pages/Team.tsx";
 import TeamMember from "../pages/TeamMember.tsx";
+import Insights from "../pages/Insights.tsx";
 
 import {
 	IconDashboard,
 	IconUsers,
 	IconEye,
 	IconEdit,
+	IconReportAnalytics,
 } from "@tabler/icons-react";
 
 export interface RouteConfig {
@@ -56,6 +58,13 @@ export const routeConfig: RouteConfig[] = [
 		element: <Team />,
 		icon: <IconUsers />,
 		description: "Team management and collaboration",
+	},
+	{
+		path: "/insights",
+		title: "Insights",
+		element: <Insights />,
+		icon: <IconReportAnalytics />,
+		description: "Resume analytics and team stats",
 	},
 ];
 
@@ -111,18 +120,18 @@ export const getRouteTitle = (path: string): string => {
 
 	// Handle dynamic routes with parameters
 	// Check for resume view/edit patterns: /resume/:id and /resume/:id/edit
-	const resumeViewMatch = path.match(/^\/resume\/([^\/]+)$/);
+	const resumeViewMatch = path.match(/^\/resume\/([^/]+)$/);
 	if (resumeViewMatch) {
 		return "Resume Details";
 	}
 
-	const resumeEditMatch = path.match(/^\/resume\/([^\/]+)\/edit$/);
+	const resumeEditMatch = path.match(/^\/resume\/([^/]+)\/edit$/);
 	if (resumeEditMatch) {
 		return "Edit Resume";
 	}
 
 	// Check for team member view pattern: /team/:id
-	const teamMemberMatch = path.match(/^\/team\/([^\/]+)$/);
+	const teamMemberMatch = path.match(/^\/team\/([^/]+)$/);
 	if (teamMemberMatch) {
 		return "Team Member Details";
 	}

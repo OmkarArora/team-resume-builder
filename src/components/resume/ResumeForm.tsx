@@ -32,20 +32,30 @@ interface ResumeFormProps {
 type FormState = Omit<Resume, "id" | "createdAt" | "updatedAt">;
 
 type FormAction =
-	| { type: "SET_FIELD"; field: keyof FormState; value: any }
+	| { type: "SET_FIELD"; field: keyof FormState; value: FormState[keyof FormState] }
 	| { type: "ADD_WORK_EXPERIENCE"; experience: WorkExperience }
 	| {
 			type: "UPDATE_WORK_EXPERIENCE";
 			id: string;
 			field: keyof WorkExperience;
-			value: any;
+			value: WorkExperience[keyof WorkExperience];
 	  }
 	| { type: "REMOVE_WORK_EXPERIENCE"; id: string }
 	| { type: "ADD_EDUCATION"; education: Education }
-	| { type: "UPDATE_EDUCATION"; id: string; field: keyof Education; value: any }
+	| {
+			type: "UPDATE_EDUCATION";
+			id: string;
+			field: keyof Education;
+			value: Education[keyof Education];
+	  }
 	| { type: "REMOVE_EDUCATION"; id: string }
 	| { type: "ADD_SKILL"; skill: Skill }
-	| { type: "UPDATE_SKILL"; id: string; field: keyof Skill; value: any }
+	| {
+			type: "UPDATE_SKILL";
+			id: string;
+			field: keyof Skill;
+			value: Skill[keyof Skill];
+	  }
 	| { type: "REMOVE_SKILL"; id: string }
 	| { type: "RESET_FORM"; initialState: FormState };
 
@@ -186,7 +196,7 @@ export default function ResumeForm({
 
 	// Helper functions for cleaner code
 	const setField = useCallback(
-		(field: keyof FormState, value: any) => {
+		<K extends keyof FormState>(field: K, value: FormState[K]) => {
 			dispatch({ type: "SET_FIELD", field, value });
 			onChange?.();
 		},

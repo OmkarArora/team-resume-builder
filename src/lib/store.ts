@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 
 import type {
 	Resume,
+	ResumeActivityEvent,
 	WorkExperience,
 	Education,
 	Skill,
@@ -66,6 +67,18 @@ const generateId = () => crypto.randomUUID();
 // Helper function to get current timestamp
 const getCurrentTimestamp = () => new Date().toISOString();
 
+const ACTIVITY_LOG_MAX = 20;
+
+function appendResumeActivity(resume: Resume, label: string): Resume {
+	const entry: ResumeActivityEvent = {
+		id: generateId(),
+		at: getCurrentTimestamp(),
+		label,
+	};
+	const log = [...(resume.activityLog ?? []), entry].slice(-ACTIVITY_LOG_MAX);
+	return { ...resume, activityLog: log, updatedAt: getCurrentTimestamp() };
+}
+
 export const useResumeStore = create<ResumeStore>()(
 	persist(
 		(set, get) => ({
@@ -77,11 +90,17 @@ export const useResumeStore = create<ResumeStore>()(
 
 			// Resume CRUD operations
 			addResume: (resumeData) => {
+				const data = { ...resumeData } as Resume & Record<string, unknown>;
+				delete data.activityLog;
+				const ts = getCurrentTimestamp();
 				const newResume: Resume = {
-					...resumeData,
+					...data,
 					id: generateId(),
-					createdAt: getCurrentTimestamp(),
-					updatedAt: getCurrentTimestamp(),
+					createdAt: ts,
+					updatedAt: ts,
+					activityLog: [
+						{ id: generateId(), at: ts, label: "Resume created" },
+					],
 				};
 
 				set((state) => ({
@@ -92,26 +111,30 @@ export const useResumeStore = create<ResumeStore>()(
 			},
 
 			updateResume: (id, resumeData) => {
-				set((state) => ({
-					resumes: state.resumes.map((resume) =>
-						resume.id === id
-							? {
-									...resume,
-									...resumeData,
-									updatedAt: getCurrentTimestamp(),
-							  }
-							: resume
-					),
-					currentResume:
-						state.currentResume?.id === id
-							? {
-									...state.currentResume,
-									...resumeData,
-									updatedAt: getCurrentTimestamp(),
-							  }
-							: state.currentResume,
-					error: null,
-				}));
+				const incoming = { ...resumeData } as Resume & Record<string, unknown>;
+				delete incoming.activityLog;
+				set((state) => {
+					const prev = state.resumes.find((r) => r.id === id);
+					if (!prev) {
+						return state;
+					}
+					let merged: Resume = {
+						...prev,
+						...incoming,
+						id: prev.id,
+						createdAt: prev.createdAt,
+						updatedAt: getCurrentTimestamp(),
+					};
+					merged = appendResumeActivity(merged, "Profile updated");
+					return {
+						resumes: state.resumes.map((resume) =>
+							resume.id === id ? merged : resume
+						),
+						currentResume:
+							state.currentResume?.id === id ? merged : state.currentResume,
+						error: null,
+					};
+				});
 			},
 
 			deleteResume: (id) => {
@@ -159,82 +182,90 @@ export const useResumeStore = create<ResumeStore>()(
 				};
 
 				set((state) => ({
-					resumes: state.resumes.map((resume) =>
-						resume.id === resumeId
-							? {
-									...resume,
-									workExperiences: [...resume.workExperiences, newExperience],
-									updatedAt: getCurrentTimestamp(),
-							  }
-							: resume
-					),
+					resumes: state.resumes.map((resume) => {
+						if (resume.id !== resumeId) return resume;
+						const next: Resume = {
+							...resume,
+							workExperiences: [...resume.workExperiences, newExperience],
+							updatedAt: getCurrentTimestamp(),
+						};
+						return appendResumeActivity(next, "Work experience added");
+					}),
 					currentResume:
 						state.currentResume?.id === resumeId
-							? {
-									...state.currentResume,
-									workExperiences: [
-										...state.currentResume.workExperiences,
-										newExperience,
-									],
-									updatedAt: getCurrentTimestamp(),
-							  }
+							? appendResumeActivity(
+									{
+										...state.currentResume,
+										workExperiences: [
+											...state.currentResume.workExperiences,
+											newExperience,
+										],
+										updatedAt: getCurrentTimestamp(),
+									},
+									"Work experience added"
+							  )
 							: state.currentResume,
 				}));
 			},
 
 			updateWorkExperience: (resumeId, experienceId, experienceData) => {
 				set((state) => ({
-					resumes: state.resumes.map((resume) =>
-						resume.id === resumeId
-							? {
-									...resume,
-									workExperiences: resume.workExperiences.map((exp) =>
-										exp.id === experienceId
-											? { ...exp, ...experienceData }
-											: exp
-									),
-									updatedAt: getCurrentTimestamp(),
-							  }
-							: resume
-					),
+					resumes: state.resumes.map((resume) => {
+						if (resume.id !== resumeId) return resume;
+						const next: Resume = {
+							...resume,
+							workExperiences: resume.workExperiences.map((exp) =>
+								exp.id === experienceId ? { ...exp, ...experienceData } : exp
+							),
+							updatedAt: getCurrentTimestamp(),
+						};
+						return appendResumeActivity(next, "Work experience updated");
+					}),
 					currentResume:
 						state.currentResume?.id === resumeId
-							? {
-									...state.currentResume,
-									workExperiences: state.currentResume.workExperiences.map(
-										(exp) =>
-											exp.id === experienceId
-												? { ...exp, ...experienceData }
-												: exp
-									),
-									updatedAt: getCurrentTimestamp(),
-							  }
+							? appendResumeActivity(
+									{
+										...state.currentResume,
+										workExperiences:
+											state.currentResume.workExperiences.map((exp) =>
+												exp.id === experienceId
+													? { ...exp, ...experienceData }
+													: exp
+											),
+										updatedAt: getCurrentTimestamp(),
+									},
+									"Work experience updated"
+							  )
 							: state.currentResume,
 				}));
 			},
 
 			removeWorkExperience: (resumeId, experienceId) => {
 				set((state) => ({
-					resumes: state.resumes.map((resume) =>
-						resume.id === resumeId
-							? {
-									...resume,
-									workExperiences: resume.workExperiences.filter(
-										(exp) => exp.id !== experienceId
-									),
-									updatedAt: getCurrentTimestamp(),
-							  }
-							: resume
-					),
+					resumes: state.resumes.map((resume) => {
+						if (resume.id !== resumeId) return resume;
+						const next: Resume = {
+							...resume,
+							workExperiences: resume.workExperiences.filter(
+								(exp) => exp.id !== experienceId
+							),
+							updatedAt: getCurrentTimestamp(),
+						};
+						return appendResumeActivity(next, "Work experience removed");
+					}),
 					currentResume:
 						state.currentResume?.id === resumeId
-							? {
-									...state.currentResume,
-									workExperiences: state.currentResume.workExperiences.filter(
-										(exp) => exp.id !== experienceId
-									),
-									updatedAt: getCurrentTimestamp(),
-							  }
+							? appendResumeActivity(
+									{
+										...state.currentResume,
+										workExperiences:
+											state.currentResume.workExperiences.filter(
+												(exp) => exp.id !== experienceId
+											),
+										updatedAt: getCurrentTimestamp(),
+									},
+									"Work experience removed"
+							  )
 							: state.currentResume,
 				}));
 			},
@@ -247,74 +278,83 @@ export const useResumeStore = create<ResumeStore>()(
 				};
 
 				set((state) => ({
-					resumes: state.resumes.map((resume) =>
-						resume.id === resumeId
-							? {
-									...resume,
-									education: [...resume.education, newEducation],
-									updatedAt: getCurrentTimestamp(),
-							  }
-							: resume
-					),
+					resumes: state.resumes.map((resume) => {
+						if (resume.id !== resumeId) return resume;
+						const next: Resume = {
+							...resume,
+							education: [...resume.education, newEducation],
+							updatedAt: getCurrentTimestamp(),
+						};
+						return appendResumeActivity(next, "Education added");
+					}),
 					currentResume:
 						state.currentResume?.id === resumeId
-							? {
-									...state.currentResume,
-									education: [...state.currentResume.education, newEducation],
-									updatedAt: getCurrentTimestamp(),
-							  }
+							? appendResumeActivity(
+									{
+										...state.currentResume,
+										education: [...state.currentResume.education, newEducation],
+										updatedAt: getCurrentTimestamp(),
+									},
+									"Education added"
+							  )
 							: state.currentResume,
 				}));
 			},
 
 			updateEducation: (resumeId, educationId, educationData) => {
 				set((state) => ({
-					resumes: state.resumes.map((resume) =>
-						resume.id === resumeId
-							? {
-									...resume,
-									education: resume.education.map((edu) =>
-										edu.id === educationId ? { ...edu, ...educationData } : edu
-									),
-									updatedAt: getCurrentTimestamp(),
-							  }
-							: resume
-					),
+					resumes: state.resumes.map((resume) => {
+						if (resume.id !== resumeId) return resume;
+						const next: Resume = {
+							...resume,
+							education: resume.education.map((edu) =>
+								edu.id === educationId ? { ...edu, ...educationData } : edu
+							),
+							updatedAt: getCurrentTimestamp(),
+						};
+						return appendResumeActivity(next, "Education updated");
+					}),
 					currentResume:
 						state.currentResume?.id === resumeId
-							? {
-									...state.currentResume,
-									education: state.currentResume.education.map((edu) =>
-										edu.id === educationId ? { ...edu, ...educationData } : edu
-									),
-									updatedAt: getCurrentTimestamp(),
-							  }
+							? appendResumeActivity(
+									{
+										...state.currentResume,
+										education: state.currentResume.education.map((edu) =>
+											edu.id === educationId ? { ...edu, ...educationData } : edu
+										),
+										updatedAt: getCurrentTimestamp(),
+									},
+									"Education updated"
+							  )
 							: state.currentResume,
 				}));
 			},
 
 			removeEducation: (resumeId, educationId) => {
 				set((state) => ({
-					resumes: state.resumes.map((resume) =>
-						resume.id === resumeId
-							? {
-									...resume,
-									education: resume.education.filter(
-										(edu) => edu.id !== educationId
-									),
-									updatedAt: getCurrentTimestamp(),
-							  }
-							: resume
-					),
+					resumes: state.resumes.map((resume) => {
+						if (resume.id !== resumeId) return resume;
+						const next: Resume = {
+							...resume,
+							education: resume.education.filter(
+								(edu) => edu.id !== educationId
+							),
+							updatedAt: getCurrentTimestamp(),
+						};
+						return appendResumeActivity(next, "Education removed");
+					}),
 					currentResume:
 						state.currentResume?.id === resumeId
-							? {
-									...state.currentResume,
-									education: state.currentResume.education.filter(
-										(edu) => edu.id !== educationId
-									),
-									updatedAt: getCurrentTimestamp(),
-							  }
+							? appendResumeActivity(
+									{
+										...state.currentResume,
+										education: state.currentResume.education.filter(
+											(edu) => edu.id !== educationId
+										),
+										updatedAt: getCurrentTimestamp(),
+									},
+									"Education removed"
+							  )
 							: state.currentResume,
 				}));
 			},
@@ -327,72 +367,81 @@ export const useResumeStore = create<ResumeStore>()(
 				};
 
 				set((state) => ({
-					resumes: state.resumes.map((resume) =>
-						resume.id === resumeId
-							? {
-									...resume,
-									skills: [...resume.skills, newSkill],
-									updatedAt: getCurrentTimestamp(),
-							  }
-							: resume
-					),
+					resumes: state.resumes.map((resume) => {
+						if (resume.id !== resumeId) return resume;
+						const next: Resume = {
+							...resume,
+							skills: [...resume.skills, newSkill],
+							updatedAt: getCurrentTimestamp(),
+						};
+						return appendResumeActivity(next, "Skill added");
+					}),
 					currentResume:
 						state.currentResume?.id === resumeId
-							? {
-									...state.currentResume,
-									skills: [...state.currentResume.skills, newSkill],
-									updatedAt: getCurrentTimestamp(),
-							  }
+							? appendResumeActivity(
+									{
+										...state.currentResume,
+										skills: [...state.currentResume.skills, newSkill],
+										updatedAt: getCurrentTimestamp(),
+									},
+									"Skill added"
+							  )
 							: state.currentResume,
 				}));
 			},
 
 			updateSkill: (resumeId, skillId, skillData) => {
 				set((state) => ({
-					resumes: state.resumes.map((resume) =>
-						resume.id === resumeId
-							? {
-									...resume,
-									skills: resume.skills.map((skill) =>
-										skill.id === skillId ? { ...skill, ...skillData } : skill
-									),
-									updatedAt: getCurrentTimestamp(),
-							  }
-							: resume
-					),
+					resumes: state.resumes.map((resume) => {
+						if (resume.id !== resumeId) return resume;
+						const next: Resume = {
+							...resume,
+							skills: resume.skills.map((skill) =>
+								skill.id === skillId ? { ...skill, ...skillData } : skill
+							),
+							updatedAt: getCurrentTimestamp(),
+						};
+						return appendResumeActivity(next, "Skill updated");
+					}),
 					currentResume:
 						state.currentResume?.id === resumeId
-							? {
-									...state.currentResume,
-									skills: state.currentResume.skills.map((skill) =>
-										skill.id === skillId ? { ...skill, ...skillData } : skill
-									),
-									updatedAt: getCurrentTimestamp(),
-							  }
+							? appendResumeActivity(
+									{
+										...state.currentResume,
+										skills: state.currentResume.skills.map((skill) =>
+											skill.id === skillId ? { ...skill, ...skillData } : skill
+										),
+										updatedAt: getCurrentTimestamp(),
+									},
+									"Skill updated"
+							  )
 							: state.currentResume,
 				}));
 			},
 
 			removeSkill: (resumeId, skillId) => {
 				set((state) => ({
-					resumes: state.resumes.map((resume) =>
-						resume.id === resumeId
-							? {
-									...resume,
-									skills: resume.skills.filter((skill) => skill.id !== skillId),
-									updatedAt: getCurrentTimestamp(),
-							  }
-							: resume
-					),
+					resumes: state.resumes.map((resume) => {
+						if (resume.id !== resumeId) return resume;
+						const next: Resume = {
+							...resume,
+							skills: resume.skills.filter((skill) => skill.id !== skillId),
+							updatedAt: getCurrentTimestamp(),
+						};
+						return appendResumeActivity(next, "Skill removed");
+					}),
 					currentResume:
 						state.currentResume?.id === resumeId
-							? {
-									...state.currentResume,
-									skills: state.currentResume.skills.filter(
-										(skill) => skill.id !== skillId
-									),
-									updatedAt: getCurrentTimestamp(),
-							  }
+							? appendResumeActivity(
+									{
+										...state.currentResume,
+										skills: state.currentResume.skills.filter(
+											(skill) => skill.id !== skillId
+										),
+										updatedAt: getCurrentTimestamp(),
+									},
+									"Skill removed"
+							  )
 							: state.currentResume,
 				}));
 			},

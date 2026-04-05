@@ -18,6 +18,7 @@ import { useResumeById } from "@/lib/store";
 import { useReactPDFExport } from "@/lib/hooks";
 import { toast } from "sonner";
 import BackButton from "@/components/ui/back-button";
+import { ResumeInsightsCard } from "@/components/resume/ResumeInsightsCard";
 
 export default function ResumeView() {
 	const { id } = useParams<{ id: string }>();
@@ -193,6 +194,7 @@ export default function ResumeView() {
 							<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 								{/* Left Column - Contact & Skills */}
 								<div className="lg:col-span-1 space-y-6">
+									<ResumeInsightsCard resume={resume} />
 									{/* Contact Information */}
 									<Card>
 										<CardHeader>

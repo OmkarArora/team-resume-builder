@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,13 +16,17 @@ import type { TeamMember } from "@/lib/types";
 interface AddMemberDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
+	/** When set, the dialog edits this member instead of creating one */
+	memberToEdit?: TeamMember | null;
 }
 
 export default function AddMemberDialog({
 	open,
 	onOpenChange,
+	memberToEdit = null,
 }: AddMemberDialogProps) {
 	const addMember = useTeamStore((s) => s.addMember);
+	const updateMember = useTeamStore((s) => s.updateMember);
 
 	const [fullName, setFullName] = useState("");
 	const [role, setRole] = useState("");
@@ -42,6 +46,19 @@ export default function AddMemberDialog({
 		setErrors({});
 	};
 
+	useEffect(() => {
+		if (!open) return;
+		if (memberToEdit) {
+			setFullName(memberToEdit.fullName);
+			setRole(memberToEdit.role);
+			setEmail(memberToEdit.email ?? "");
+			setAvatarUrl(memberToEdit.avatarUrl ?? "");
+			setErrors({});
+		} else {
+			resetForm();
+		}
+	}, [open, memberToEdit]);
+
 	const validate = () => {
 		const next: { fullName?: string; role?: string; email?: string } = {};
 		if (!fullName.trim()) next.fullName = "Full name is required";
@@ -56,14 +73,24 @@ export default function AddMemberDialog({
 
 	const handleSave = () => {
 		if (!validate()) return;
-		const payload: Omit<TeamMember, "id" | "createdAt" | "updatedAt"> = {
-			fullName: fullName.trim(),
-			role: role.trim(),
-			email: email.trim(),
-			avatarUrl: avatarUrl.trim() ? avatarUrl.trim() : undefined,
-			resumeIds: [],
-		};
-		addMember(payload);
+		if (memberToEdit) {
+			updateMember(memberToEdit.id, {
+				fullName: fullName.trim(),
+				role: role.trim(),
+				email: email.trim(),
+				avatarUrl: avatarUrl.trim() ? avatarUrl.trim() : undefined,
+				resumeIds: memberToEdit.resumeIds,
+			});
+		} else {
+			const payload: Omit<TeamMember, "id" | "createdAt" | "updatedAt"> = {
+				fullName: fullName.trim(),
+				role: role.trim(),
+				email: email.trim(),
+				avatarUrl: avatarUrl.trim() ? avatarUrl.trim() : undefined,
+				resumeIds: [],
+			};
+			addMember(payload);
+		}
 		onOpenChange(false);
 		resetForm();
 	};
@@ -78,9 +105,13 @@ export default function AddMemberDialog({
 		>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Add team member</DialogTitle>
+					<DialogTitle>
+						{memberToEdit ? "Edit team member" : "Add team member"}
+					</DialogTitle>
 					<DialogDescription>
-						Create a new member by filling out the details below.
+						{memberToEdit
+							? "Update this member’s details. Linked resumes are unchanged."
+							: "Create a new member by filling out the details below."}
 					</DialogDescription>
 				</DialogHeader>
 				<div className="flex flex-col gap-4">
@@ -135,7 +166,9 @@ export default function AddMemberDialog({
 					<Button variant="outline" onClick={() => onOpenChange(false)}>
 						Cancel
 					</Button>
-					<Button onClick={handleSave}>Save member</Button>
+					<Button onClick={handleSave}>
+						{memberToEdit ? "Save changes" : "Save member"}
+					</Button>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>

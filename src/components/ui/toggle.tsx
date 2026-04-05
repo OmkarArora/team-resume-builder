@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- CVA variant exports */
 "use client"
 
 import * as React from "react"

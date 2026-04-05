@@ -15,6 +15,8 @@ import { useResumes, useResumeStore } from "@/lib/store";
 import type { Resume } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 import { useMemo, useState } from "react";
+import { DashboardSummaryStrip } from "@/components/dashboard/DashboardSummaryStrip";
+import { DashboardActivityChart } from "@/components/dashboard/DashboardActivityChart";
 
 export default function ResumeList() {
 	const resumes = useResumes();
@@ -56,6 +58,11 @@ export default function ResumeList() {
 			<div className="@container/main flex flex-1 flex-col gap-2">
 				<div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
 					{/* Header */}
+					<div className="px-4 lg:px-6 space-y-4">
+						<DashboardSummaryStrip resumes={resumes} />
+						<DashboardActivityChart resumes={resumes} />
+					</div>
+
 					<div
 						className="flex items-center justify-between gap-4 px-4 lg:px-6 flex-wrap"
 						data-tour="dashboard-header"

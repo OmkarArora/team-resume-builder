@@ -11,7 +11,9 @@ A modern React application for creating, viewing, and editing resumes with a cle
 - Shadcn/ui
 - Lucide React
 - Zustand (State Management)
+- [shadcn/ui Chart](https://ui.shadcn.com/docs/components/radix/chart) (Recharts-based: `ChartContainer`, tooltips, legends)
 - @react-pdf/renderer (PDF Generation)
+- Vitest, React Testing Library (tests)
 
 ## Features
 
@@ -23,12 +25,15 @@ A modern React application for creating, viewing, and editing resumes with a cle
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 - **Form State Management**: Efficient state handling with useReducer
 - **TypeScript**: Full type safety throughout the application
+- **Insights & analytics**: Dashboard KPIs and activity chart; `/insights` for tables and demo pipeline totals; per-resume insights (completion, word counts, activity log); team comparison chart (derived + illustrative pipeline metrics)
 
 ## State Management
 
 - **Global State**: Zustand store with localStorage persistence
 - **Form State**: useReducer for efficient form state management
 - **Data Persistence**: Automatic localStorage caching with Zustand middleware
+- **Resume activity log**: Appended on create/update and section edits (capped list) for timelines on the resume view
+- **Analytics**: Derived client-side in `src/lib/resume-analytics.ts` (word counts, completion score, weekly activity buckets, team rows)
 
 ## Routing
 
@@ -54,8 +59,9 @@ The routing system is built around a single source of truth configuration file (
 
 #### Main Routes
 
-- `/` - Dashboard (displays all resumes)
+- `/` - Dashboard (displays all resumes, summary KPIs, activity chart)
 - `/team` - Team management and collaboration
+- `/insights` - Resume and team analytics
 
 #### Resume Routes
 
@@ -112,6 +118,19 @@ The system provides utility functions for working with routes:
 
 This centralized approach ensures your routes stay perfectly synchronized across your entire application.
 
+## Testing
+
+```bash
+pnpm run test        # single run (CI)
+pnpm run test:watch  # watch mode
+```
+
+Unit tests cover analytics helpers in `src/lib/resume-analytics.test.ts`.
+
+## CI
+
+GitHub Actions runs lint, build, and tests on push and pull requests (see `.github/workflows/ci.yml`).
+
 ## Zustand Store
 
 The application uses **Zustand** for global state management with **localStorage persistence** for data caching.
@@ -123,6 +142,7 @@ The application uses **Zustand** for global state management with **localStorage
 - **Performance**: Optimized selectors and minimal re-renders
 - **CRUD Operations**: Complete Create, Read, Update, Delete functionality
 - **Nested Updates**: Support for updating work experience, education, and skills
+- **Activity log**: Each resume can store a short chronological log of edits (used in Insights card)
 
 ### 📁 **Store Files**
 
@@ -170,6 +190,7 @@ removeSkill(resumeId, skillId);
 - **ResumeEdit** (`/pages/ResumeEdit.tsx`) - Edit resume using the ResumeForm component
 - **Team** (`/pages/Team.tsx`) - Team management and collaboration
 - **TeamMember** (`/pages/TeamMember.tsx`) - Individual team member view
+- **Insights** (`/pages/Insights.tsx`) - Org-wide stats, per-resume table, demo pipeline chart
 
 ### Forms
 
@@ -189,7 +210,10 @@ removeSkill(resumeId, skillId);
 ### Team Components
 
 - **AddMemberDialog** (`/components/team/AddMemberDialog.tsx`) - Add new team members
+- **TeamComparisonChart** (`/components/team/TeamComparisonChart.tsx`) - Bar chart comparing members
 - **ResumeList** (`/components/resume/ResumeList.tsx`) - Resume grid display with actions
+- **ResumeInsightsCard** (`/components/resume/ResumeInsightsCard.tsx`) - Completion, word counts, activity on resume view
+- **DashboardSummaryStrip** / **DashboardActivityChart** (`/components/dashboard/`) - Dashboard analytics
 
 ## Getting Started
 
@@ -213,12 +237,17 @@ removeSkill(resumeId, skillId);
 src/
 ├── components/
 │   ├── resume/
-│   │   ├── ResumeForm.tsx      # Main resume form component
-│   │   ├── ResumeList.tsx      # Resume grid display
+│   │   ├── ResumeForm.tsx
+│   │   ├── ResumeList.tsx
+│   │   ├── ResumeInsightsCard.tsx
 │   │   └── pdf/
-│   │       └── ResumePDFDocument.tsx  # PDF template
+│   │       └── ResumePDFDocument.tsx
 │   ├── team/
-│   │   └── AddMemberDialog.tsx # Team member management
+│   │   ├── AddMemberDialog.tsx
+│   │   └── TeamComparisonChart.tsx
+│   ├── dashboard/
+│   │   ├── DashboardSummaryStrip.tsx
+│   │   └── DashboardActivityChart.tsx
 │   ├── ui/                     # Reusable UI components
 │   └── ...
 ├── pages/
@@ -227,8 +256,10 @@ src/
 │   ├── ResumeView.tsx         # Resume viewing with PDF export
 │   ├── ResumeEdit.tsx         # Resume editing page
 │   ├── Team.tsx               # Team management
-│   └── TeamMember.tsx         # Individual team member view
+│   ├── TeamMember.tsx         # Individual team member view
+│   └── Insights.tsx           # Analytics page
 ├── lib/
+│   ├── resume-analytics.ts    # Word count, completion, aggregates
 │   ├── store.ts                # Zustand store configuration
 │   ├── hooks.ts                # Custom hooks for store operations
 │   ├── pdfExport.tsx           # PDF generation utilities

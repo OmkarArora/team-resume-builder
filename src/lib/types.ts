@@ -26,6 +26,13 @@ export interface Skill {
 	proficiencyLevel: string;
 }
 
+/** Append-only log of notable edits (capped in the store). */
+export interface ResumeActivityEvent {
+	id: string;
+	at: string;
+	label: string;
+}
+
 export interface Resume {
 	id: string;
 	fullName: string;
@@ -41,6 +48,14 @@ export interface Resume {
 	skills: Skill[];
 	createdAt: string;
 	updatedAt: string;
+	activityLog?: ResumeActivityEvent[];
+}
+
+/** Optional mock job-search funnel for charts (illustrative). */
+export interface PipelineStats {
+	applications: number;
+	interviews: number;
+	offers: number;
 }
 
 export interface TeamMember {
@@ -52,4 +67,5 @@ export interface TeamMember {
 	resumeIds: string[];
 	createdAt: string;
 	updatedAt: string;
+	pipelineStats?: PipelineStats;
 }

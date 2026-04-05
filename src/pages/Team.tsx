@@ -13,18 +13,21 @@ import { Badge } from "@/components/ui/badge";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { SearchBar } from "@/components/ui/search-bar";
 import AddMemberDialog from "@/components/team/AddMemberDialog";
-import { useTeamStore } from "@/lib/store";
+import { useResumes, useTeamStore } from "@/lib/store";
 import type { TeamMember } from "@/lib/types";
+import { TeamComparisonChart } from "@/components/team/TeamComparisonChart";
 // import type { TeamMember } from "@/lib/types";
 
 export default function Team() {
 	const members = useTeamStore((s) => s.teamMembers);
+	const resumes = useResumes();
 	const deleteMember = useTeamStore((s) => s.deleteMember);
 
 	const [query, setQuery] = useState("");
 
-	// Add Member dialog state
+	// Add / edit member dialog state
 	const [open, setOpen] = useState(false);
+	const [memberToEdit, setMemberToEdit] = useState<TeamMember | null>(null);
 
 	// Delete confirmation dialog state
 	const [memberToDelete, setMemberToDelete] = useState<TeamMember | null>(null);
@@ -66,7 +69,13 @@ export default function Team() {
 								ariaLabel="Search members"
 								className="w-full sm:w-[200px] md:w-56"
 							/>
-							<Button onClick={() => setOpen(true)} data-tour="add-member-btn">
+							<Button
+								onClick={() => {
+									setMemberToEdit(null);
+									setOpen(true);
+								}}
+								data-tour="add-member-btn"
+							>
 								<UserPlus className="h-4 w-4" />
 								Add Member
 							</Button>
@@ -83,7 +92,13 @@ export default function Team() {
 								<p className="mt-2 text-sm text-muted-foreground">
 									Create your first team member to get started
 								</p>
-								<Button className="mt-4" onClick={() => setOpen(true)}>
+								<Button
+									className="mt-4"
+									onClick={() => {
+										setMemberToEdit(null);
+										setOpen(true);
+									}}
+								>
 									<UserPlus className="h-4 w-4" />
 									Add Member
 								</Button>
@@ -94,16 +109,29 @@ export default function Team() {
 									<TeamMemberCard
 										key={m.id}
 										member={m}
+										onEditClick={() => {
+											setMemberToEdit(m);
+											setOpen(true);
+										}}
 										onDeleteClick={() => setMemberToDelete(m)}
 									/>
 								))}
 							</div>
 						)}
 					</div>
+
+					<TeamComparisonChart members={members} resumes={resumes} />
 				</div>
 			</div>
 
-			<AddMemberDialog open={open} onOpenChange={setOpen} />
+			<AddMemberDialog
+				open={open}
+				onOpenChange={(o) => {
+					setOpen(o);
+					if (!o) setMemberToEdit(null);
+				}}
+				memberToEdit={memberToEdit}
+			/>
 
 			<ConfirmationDialog
 				open={!!memberToDelete}
@@ -125,13 +153,13 @@ export default function Team() {
 
 function TeamMemberCard({
 	member: m,
+	onEditClick,
 	onDeleteClick,
 }: {
 	member: TeamMember;
+	onEditClick: () => void;
 	onDeleteClick: () => void;
 }) {
-	const updateMember = useTeamStore((s) => s.updateMember);
-
 	return (
 		<Card className="hover:shadow-md transition-shadow py-4 px-6 w-full md:w-[320px] ">
 			<CardHeader className="pb-3 px-0">
@@ -161,15 +189,7 @@ function TeamMemberCard({
 					variant="outline"
 					size="sm"
 					className="flex-1"
-					onClick={() =>
-						updateMember(m.id, {
-							fullName: m.fullName,
-							role: m.role,
-							email: m.email,
-							avatarUrl: m.avatarUrl,
-							resumeIds: m.resumeIds,
-						})
-					}
+					onClick={onEditClick}
 				>
 					<Edit className="h-4 w-4" />
 					Edit

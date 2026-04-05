@@ -18,20 +18,6 @@ export default function ResumeEdit() {
 	const resume = useResumeById(id || "");
 	const updateResume = useResumeStore((state) => state.updateResume);
 
-	if (!resume) {
-		return (
-			<div className="flex flex-1 flex-col items-center justify-center">
-				<div className="text-center">
-					<h1 className="text-2xl font-bold">Resume Not Found</h1>
-					<p className="text-muted-foreground mt-2">
-						The resume you're trying to edit doesn't exist.
-					</p>
-					<BackButton />
-				</div>
-			</div>
-		);
-	}
-
 	const handleSave = (
 		updatedResume: Omit<Resume, "id" | "createdAt" | "updatedAt">
 	) => {
@@ -75,6 +61,20 @@ export default function ResumeEdit() {
 			window.removeEventListener("beforeunload", handleBeforeUnload);
 		};
 	}, [hasUnsavedChanges]);
+
+	if (!resume) {
+		return (
+			<div className="flex flex-1 flex-col items-center justify-center">
+				<div className="text-center">
+					<h1 className="text-2xl font-bold">Resume Not Found</h1>
+					<p className="text-muted-foreground mt-2">
+						The resume you're trying to edit doesn't exist.
+					</p>
+					<BackButton />
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="flex flex-1 flex-col">

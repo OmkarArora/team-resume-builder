@@ -6,9 +6,7 @@ import "./index.css";
 import { BrowserRouter, Route, Routes } from "react-router";
 
 import { ThemeProvider } from "./components/themes/theme-provider.tsx";
-import { SidebarInset, SidebarProvider } from "./components/ui/sidebar.tsx";
-import { AppSidebar } from "./components/app-sidebar.tsx";
-import { SiteHeader } from "./components/site-header.tsx";
+import { RootLayout } from "./components/root-layout.tsx";
 import { routes } from "./lib/routes";
 import { Toaster } from "sonner";
 import { initializeStore } from "./lib/hooks";
@@ -39,22 +37,3 @@ createRoot(document.getElementById("root")!).render(
 		</ThemeProvider>
 	</StrictMode>
 );
-
-function RootLayout({ children }: { children: React.ReactNode }) {
-	return (
-		<SidebarProvider
-			style={
-				{
-					"--sidebar-width": "calc(var(--spacing) * 56)",
-					"--header-height": "calc(var(--spacing) * 12)",
-				} as React.CSSProperties
-			}
-		>
-			<AppSidebar variant="inset" />
-			<SidebarInset>
-				<SiteHeader />
-				{children}
-			</SidebarInset>
-		</SidebarProvider>
-	);
-}
